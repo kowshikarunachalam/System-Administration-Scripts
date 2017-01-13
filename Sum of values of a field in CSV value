@@ -1,0 +1,15 @@
+## Program will sum of all 2nd field in CSV file. 
+Kowshik-CDNW-MacBook-Pro:~ kowshik.arunachalam$ cat csv.pl 
+#!/usr/bin/perl
+use strict;
+use warnings;
+my $file = $ARGV[0] or die "Input CSV file is missing";
+my $sum = 0;
+open(my $data, '<', $file) or die "Could not open '$file' $!\n";
+while (my $line = <$data>) {
+  chomp $line;
+  my @fields = split "," , $line;
+  $sum += $fields[2];
+}
+print "$sum\n";
+Kowshik-CDNW-MacBook-Pro:~ kowshik.arunachalam$ 
