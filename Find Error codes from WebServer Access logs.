@@ -1,0 +1,14 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+my $apachefile = '/var/log/apache.log';
+my @errorlines;
+if ( -e $apachefile ){  ## Check for the existence of apacheaccessfile 
+open(DATA,"<$apachefile") or print "CRITICAL:Couldnt open file apache access file\n";
+while (<DATA>){ #Read each line in access log
+if($_ =~ /\S* HTTP\S* (4\d\d|5\d\d)/){  #Via Regex check if line contains 4xx or 5xx code. 
+push @errorlines,$_; #Store line contains error code to array
+}
+next;
+}}
+print @errorlines; #Print lines with error code
