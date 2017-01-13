@@ -1,0 +1,32 @@
+#!/usr/bin/perl -w
+use strict;
+use Net::OpenSSH;
+my $hostname = "174.35.52.110";
+my $username = "spearhead";
+my $password = "05rAInmAkEr27";
+my $timeout  = 30;
+my @criticalmessages;
+open (IPMIINPUTFILE, $ARGV[0]) or die "$ARGV[0]: $!";
+while  ( my $input = <IPMIINPUTFILE>) {
+chomp $input;
+print "Trying to apply ACL to host $input";
+my $ssh = Net::OpenSSH->new($input, user => $username, password => $password,timeout => $timeout,master_opts => [-o => "StrictHostKeyChecking=no"]);
+#$ssh->error and print  "Unable to connect to remote host: " . $ssh->error;
+if( $ssh->error ){
+#$ssh->error and push @criticalmessages, "Unable to connect to remote host: " . $ssh->error;
+push @criticalmessages, "Unable to connect to remote host: " . $ssh->error;
+}
+else
+{
+$ssh->system("racadm config -g cfgRacTuning -o cfgRacTuneIpRangeAddr 66.114.60.241") or
+#die "remote command failed: " . $ssh->error;
+push @criticalmessages, "Unable to connect to remote host: " . $ssh->error;
+$ssh->system("racadm config -g cfgRacTuning -o cfgRacTuneIpRangeMask 255.255.255.0") or
+#die "remote command failed: " . $ssh->error;
+push @criticalmessages,$ssh->error;
+$ssh->system("racadm config -g cfgRacTuning -o cfgRacTuneIpRangeEnable 1") or
+#    die "remote command failed: " . $ssh->error;
+push @criticalmessages,$ssh->error;
+#$ssh->system("exit");
+}}
+#print @criticalmessages;
