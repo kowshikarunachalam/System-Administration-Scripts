@@ -1,0 +1,39 @@
+# This program accepts hostnames in a file.
+#!/usr/bin/perl
+use strict;
+use warnings;
+use Net::OpenSSH;
+my $username = "user";
+my $password = "123456";
+my $timeout  = 30;
+my $messagefile = "/var/log/messages";
+my @errorlines;
+my @criticalmessages;
+open (INPUTHOSTFILE, $ARGV[0]) or die "$ARGV[0]: $!"; #ReadInput File which contains hosts to be SSHED
+while  ( my $Host = <INPUTHOSTFILE>) {
+chomp $Host;
+my $ssh = Net::OpenSSH->new($Host, user => $username, password => $password,timeout => $timeout,master_opts => [-o => "StrictHostKeyChecking=no"]);
+if( $ssh->error ){ ## Check if able to SSH to host  
+push @criticalmessages, "Unable to connect to remote host: " . $ssh->error;
+}
+else
+{
+my ($rout, $pid) = $ssh->pipe_out("cat $messagefile") or #Store value of message in rout variable.
+    die "pipe_out method failed: " . $ssh->error;
+while (<$rout>){ #Read each line in Message logs
+
+if($_ =~ ("error|ERROR")) {
+push @errorlines,$_; 
+
+}
+next;
+}
+close $rout;
+print "Error Lines for Host $Host\n";
+print @errorlines;
+print "----------------------------------------------------------";
+@errorlines=(); #Empty Error File for next iteration
+}
+print @criticalmessages;
+}
+Kowshik-CDNW-MacBook-Pro:~ kowshik.arunachalam$
